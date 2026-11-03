@@ -1,0 +1,22 @@
+# Shopify app configuration
+# `client_id` khaali hai — `npm run config:link` chala kar Partner Dashboard
+# wali app se link karein, CLI ye file khud update kar degi.
+
+client_id = ""
+name = "Stock Pulse"
+application_url = "https://shopify.dev/apps/default-app-home"
+embedded = true
+
+[access_scopes]
+# Ye extension-only app hai: theme block ko Liquid ke zariye product data
+# milta hai, is liye abhi koi API scope nahi chahiye.
+scopes = ""
+
+[auth]
+redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
+
+[webhooks]
+api_version = "2025-10"
+
+[build]
+include_config_on_deploy = true

@@ -1,0 +1,15 @@
+{
+  "name": "stock-pulse",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shopify extension-only app: product page par pulsing stock badge",
+  "scripts": {
+    "config:link": "shopify app config link",
+    "dev": "shopify app dev",
+    "deploy": "shopify app deploy",
+    "info": "shopify app info"
+  },
+  "devDependencies": {
+    "@shopify/cli": "^3.70.0"
+  }
+}

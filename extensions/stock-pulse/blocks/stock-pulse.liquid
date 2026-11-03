@@ -1,0 +1,176 @@
+{%- comment -%}
+  Stock Pulse — app block
+  -----------------------
+  Product page par "In stock, ready to ship" jaisa pulsing badge dikhata hai.
+  Teen haalaat (states) handle karta hai:
+    - in   : variant available hai
+    - low  : inventory track ho rahi hai aur quantity threshold se kam hai
+    - out  : variant sold out hai
+  Variant badalne par assets/stock-pulse.js badge ko update karta hai.
+{%- endcomment -%}
+
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign threshold = block.settings.low_stock_threshold
+
+  assign state = 'out'
+  if variant.available
+    assign state = 'in'
+    if block.settings.show_low_stock and variant.inventory_management == 'shopify' and variant.inventory_quantity > 0 and variant.inventory_quantity <= threshold
+      assign state = 'low'
+    endif
+  endif
+
+  case state
+    when 'in'
+      assign message = block.settings.in_stock_text
+    when 'low'
+      assign message = block.settings.low_stock_text | replace: '[count]', variant.inventory_quantity
+    else
+      assign message = block.settings.out_of_stock_text
+  endcase
+
+  assign hide = false
+  if state == 'out' and block.settings.show_when_out == false
+    assign hide = true
+  endif
+-%}
+
+{{ 'stock-pulse.css' | asset_url | stylesheet_tag }}
+
+<div
+  class="stock-pulse"
+  data-stock-pulse
+  data-state="{{ state }}"
+  data-threshold="{{ threshold }}"
+  data-show-low="{{ block.settings.show_low_stock }}"
+  data-show-out="{{ block.settings.show_when_out }}"
+  data-msg-in="{{ block.settings.in_stock_text | escape }}"
+  data-msg-low="{{ block.settings.low_stock_text | escape }}"
+  data-msg-out="{{ block.settings.out_of_stock_text | escape }}"
+  style="
+    --sp-in: {{ block.settings.in_stock_color }};
+    --sp-low: {{ block.settings.low_stock_color }};
+    --sp-out: {{ block.settings.out_of_stock_color }};
+    --sp-dot-size: {{ block.settings.dot_size }}px;
+    --sp-speed: {{ block.settings.pulse_speed }}s;
+  "
+  {{ block.shopify_attributes }}
+  {% if hide %}hidden{% endif %}
+>
+  <span class="stock-pulse__icon" aria-hidden="true"></span>
+  <span class="stock-pulse__text" data-stock-pulse-text>{{ message }}</span>
+
+  <script type="application/json" data-stock-pulse-variants>
+    [
+      {%- for v in product.variants -%}
+        {
+          "id": {{ v.id }},
+          "available": {{ v.available }},
+          "tracked": {% if v.inventory_management == 'shopify' %}true{% else %}false{% endif %},
+          "qty": {{ v.inventory_quantity | default: 0 }}
+        }{% unless forloop.last %},{% endunless %}
+      {%- endfor -%}
+    ]
+  </script>
+</div>
+
+<script src="{{ 'stock-pulse.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Stock Pulse",
+  "target": "section",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Messages"
+    },
+    {
+      "type": "text",
+      "id": "in_stock_text",
+      "label": "In stock text",
+      "default": "In stock, ready to ship"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_low_stock",
+      "label": "Show low stock message",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "low_stock_text",
+      "label": "Low stock text",
+      "info": "[count] ki jagah bachi hui quantity aayegi",
+      "default": "Hurry! Only [count] left in stock"
+    },
+    {
+      "type": "range",
+      "id": "low_stock_threshold",
+      "label": "Low stock threshold",
+      "min": 1,
+      "max": 50,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "show_when_out",
+      "label": "Show badge when sold out",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "out_of_stock_text",
+      "label": "Sold out text",
+      "default": "Out of stock"
+    },
+    {
+      "type": "header",
+      "content": "Style"
+    },
+    {
+      "type": "color",
+      "id": "in_stock_color",
+      "label": "In stock color",
+      "default": "#54c63a"
+    },
+    {
+      "type": "color",
+      "id": "low_stock_color",
+      "label": "Low stock color",
+      "default": "#f59e0b"
+    },
+    {
+      "type": "color",
+      "id": "out_of_stock_color",
+      "label": "Sold out color",
+      "default": "#d93636"
+    },
+    {
+      "type": "range",
+      "id": "dot_size",
+      "label": "Dot size",
+      "min": 6,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "pulse_speed",
+      "label": "Pulse speed",
+      "min": 1,
+      "max": 5,
+      "step": 0.5,
+      "unit": "s",
+      "default": 2
+    }
+  ]
+}
+{% endschema %}

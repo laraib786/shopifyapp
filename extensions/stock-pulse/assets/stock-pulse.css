@@ -1,0 +1,62 @@
+/* Stock Pulse badge */
+.stock-pulse {
+  --sp-color: var(--sp-in, #54c63a);
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.stock-pulse[hidden] {
+  display: none;
+}
+
+.stock-pulse[data-state="low"] {
+  --sp-color: var(--sp-low, #f59e0b);
+}
+
+.stock-pulse[data-state="out"] {
+  --sp-color: var(--sp-out, #d93636);
+}
+
+.stock-pulse__icon {
+  position: relative;
+  flex: 0 0 auto;
+  width: calc(var(--sp-dot-size, 10px) * 2);
+  height: calc(var(--sp-dot-size, 10px) * 2);
+}
+
+.stock-pulse__icon::before,
+.stock-pulse__icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: var(--sp-dot-size, 10px);
+  height: var(--sp-dot-size, 10px);
+  border-radius: 50%;
+  background: var(--sp-color);
+}
+
+/* Bahar phailta hua halqa (pulse) — sold out par pulse band */
+.stock-pulse:not([data-state="out"]) .stock-pulse__icon::before {
+  animation: stock-pulse-ring var(--sp-speed, 2s) linear infinite;
+}
+
+@keyframes stock-pulse-ring {
+  0% {
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* Jo users animation band rakhte hain un ke liye */
+@media (prefers-reduced-motion: reduce) {
+  .stock-pulse .stock-pulse__icon::before {
+    animation: none;
+  }
+}
