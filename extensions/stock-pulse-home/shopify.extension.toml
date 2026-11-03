@@ -1,0 +1,13 @@
+api_version = "2026-07"
+
+[[extensions]]
+# Merchant-facing name comes from locales/en.default.json
+name = "t:name"
+handle = "stock-pulse-home"
+type = "ui_extension"
+
+# App Home: Shopify-hosted landing page shown when the merchant opens the app.
+# Only one admin.app.home.render target is allowed per app.
+[[extensions.targeting]]
+module = "./src/AppHome.jsx"
+target = "admin.app.home.render"

@@ -1,0 +1,11 @@
+{
+  "name": "stock-pulse-home",
+  "private": true,
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "scripts": {},
+  "dependencies": {
+    "@shopify/ui-extensions": "2026.7.x",
+    "preact": "^10.10.x"
+  }
+}
